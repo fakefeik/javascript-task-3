@@ -6,9 +6,10 @@
  */
 exports.isStar = true;
 
-var timeRegexp = /(\d{2}):(\d{2})\+(\d+)/;
-var daysOfWeek = ['ПН', 'ВТ', 'СР'];
-var nextTry = 30 * 60 * 1000;
+var TIME_REGEXP = /(\d{2}):(\d{2})\+(\d+)/;
+var DAYS_OF_WEEK = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+var ROBBERY_DAYS = 3;
+var NEXT_TRY = 30 * 60 * 1000;
 
 function prettifyTime(time) {
     time = time.toString();
@@ -20,7 +21,7 @@ function prettifyTime(time) {
 }
 
 function parseTime(timeString) {
-    var timeGroups = timeRegexp.exec(timeString);
+    var timeGroups = TIME_REGEXP.exec(timeString);
 
     return {
         hours: parseInt(timeGroups[1]),
@@ -41,7 +42,7 @@ function normalizeTime(timeString, timeZone) {
     var time = parseTime(timeString.substring(3));
 
     var hoursToAdd = timeZone - time.timeZone;
-    var day = daysOfWeek.indexOf(timeString.substring(0, 2)) + 1;
+    var day = DAYS_OF_WEEK.indexOf(timeString.substring(0, 2)) + 1;
     var hours = time.hours + hoursToAdd;
     var minutes = time.minutes;
 
@@ -83,7 +84,7 @@ function normalizeSchedule(schedule, workingHours) {
     var timeZone = from.timeZone;
 
     var bankSchedule = Array
-        .apply(null, new Array(daysOfWeek.length))
+        .apply(null, new Array(ROBBERY_DAYS))
         .map(function (_, i) {
             return {
                 from: normalizeDate(i + 1, from.hours, from.minutes),
@@ -173,7 +174,7 @@ exports.getAppropriateMoment = function (schedule, duration, workingHours) {
         format: function (template) {
             if (moment) {
                 return template
-                    .replace('%DD', daysOfWeek[moment.getUTCDate() - 1])
+                    .replace('%DD', DAYS_OF_WEEK[moment.getUTCDate() - 1])
                     .replace('%HH', prettifyTime(moment.getUTCHours()))
                     .replace('%MM', prettifyTime(moment.getUTCMinutes()));
             }
@@ -193,7 +194,7 @@ exports.getAppropriateMoment = function (schedule, duration, workingHours) {
 
             var newMoment = getFirstAppropriateMoment(
                 normalizedSchedule, normalizedDuration,
-                moment.getTime() + nextTry);
+                moment.getTime() + NEXT_TRY);
 
             if (newMoment) {
                 moment = newMoment;
