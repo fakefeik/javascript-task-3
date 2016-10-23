@@ -58,7 +58,7 @@ function normalizeTime(timeString, timeZone) {
 function invertSchedule(schedule, timeZone) {
     var result = [];
     var sortedSchedule = schedule.sort(function (a, b) {
-        return a > b;
+        return a > b ? 1 : -1;
     });
     for (var j = 0; j < sortedSchedule.length; j++) {
         var time = j === 0 ? {
