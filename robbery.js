@@ -128,7 +128,7 @@ function getFirstAppropriateMoment(schedule, duration, start) {
         })
         .concat([start])
         .sort(function (a, b) {
-            return a > b;
+            return a > b ? 1 : -1;
         });
 
     for (var i = 0; i < possibleStarts.length; i++) {
@@ -152,6 +152,7 @@ exports.getAppropriateMoment = function (schedule, duration, workingHours) {
     console.info(schedule, duration, workingHours);
     var normalizedDuration = duration * 60 * 1000;
     var normalizedSchedule = normalizeSchedule(schedule, workingHours);
+    console.info(normalizedSchedule);
     var moment = getFirstAppropriateMoment(normalizedSchedule, normalizedDuration);
 
     return {
