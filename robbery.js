@@ -46,7 +46,7 @@ function normalizeTime(timeString, timeZone) {
     var minutes = time.minutes;
 
     if (hours > 23 || hours < 0) {
-        var delta = hours > 0 ? 1 : -1;
+        var delta = Math.sign(hours);
         hours += -24 * delta;
         day += delta;
     }
