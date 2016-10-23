@@ -6,7 +6,7 @@
  */
 exports.isStar = true;
 
-var timeRegexp = /(\d{2}):(\d{2})\+(\d)/;
+var timeRegexp = /(\d{2}):(\d{2})\+(\d+)/;
 var daysOfWeek = ['ПН', 'ВТ', 'СР'];
 var nextTry = 30 * 60 * 1000;
 
