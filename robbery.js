@@ -57,12 +57,20 @@ function normalizeTime(timeString, timeZone) {
 
 function invertSchedule(schedule, timeZone) {
     var result = [];
+    var startWeek = normalizeDate(-1, 0, 0);
+    var endWeek = normalizeDate(7, 0, 0);
     var sortedSchedule = schedule.sort(function (a, b) {
         return a > b ? 1 : -1;
     });
+    if (schedule.length === 0) {
+        return [{
+            from: startWeek,
+            to: endWeek
+        }];
+    }
     for (var j = 0; j < sortedSchedule.length; j++) {
         var time = j === 0 ? {
-            from: normalizeDate(-1, 0, 0),
+            from: startWeek,
             to: normalizeTime(sortedSchedule[j].from, timeZone)
         } : {
             from: normalizeTime(sortedSchedule[j - 1].to, timeZone),
@@ -72,7 +80,7 @@ function invertSchedule(schedule, timeZone) {
     }
     result.push({
         from: normalizeTime(sortedSchedule[sortedSchedule.length - 1].to, timeZone),
-        to: normalizeDate(7, 0, 0)
+        to: endWeek
     });
 
     return result;
