@@ -104,7 +104,7 @@ function normalizeSchedule(schedule, workingHours) {
 function isInTimeRanges(timeRanges, time, duration) {
     return timeRanges.some(function (timeRange) {
         return time >= timeRange.from &&
-            new Date(time.getTime() + duration) < timeRange.to;
+            new Date(time.getTime() + duration) <= timeRange.to;
     });
 }
 
@@ -173,14 +173,10 @@ exports.getAppropriateMoment = function (schedule, duration, workingHours) {
          * @returns {String}
          */
         format: function (template) {
-            if (moment) {
-                return template
-                    .replace('%DD', DAYS_OF_WEEK[moment.getUTCDate() - 1])
-                    .replace('%HH', prettifyTime(moment.getUTCHours()))
-                    .replace('%MM', prettifyTime(moment.getUTCMinutes()));
-            }
-
-            return '';
+            return !moment ? '' : template
+                .replace('%DD', DAYS_OF_WEEK[moment.getUTCDate() - 1])
+                .replace('%HH', prettifyTime(moment.getUTCHours()))
+                .replace('%MM', prettifyTime(moment.getUTCMinutes()));
         },
 
         /**
@@ -199,11 +195,9 @@ exports.getAppropriateMoment = function (schedule, duration, workingHours) {
 
             if (newMoment) {
                 moment = newMoment;
-
-                return true;
             }
 
-            return false;
+            return Boolean(newMoment);
         }
     };
 };
