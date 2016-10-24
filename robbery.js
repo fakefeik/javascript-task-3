@@ -114,26 +114,45 @@ function timesMatch(schedule, start, duration) {
     });
 }
 
+function innerInnerFor(i, j, result) {
+    for (var k = 0; k < 60; k++) {
+        result.push(normalizeDate(i + 1, j, k));
+    }
+}
+
+function innerFor(i, result) {
+    for (var j = 0; j < 24; j++) {
+        innerInnerFor(i, j, result);
+    }
+}
+
 function getFirstAppropriateMoment(schedule, duration, start) {
     start = new Date(start || 0);
-    var possibleStarts = Object
-        .keys(schedule)
-        .reduce(function (acc, val) {
-            return acc.concat(schedule[val].map(function (deltaTime) {
-                return deltaTime.from;
-            }));
-        }, [])
-        .filter(function (time) {
-            return time >= start;
-        })
-        .concat([start])
-        .sort(function (a, b) {
-            return a > b ? 1 : -1;
-        });
+    var result = [];
+    for (var i = 0; i < 3; i++) {
+        innerFor(i, result);
+    }
+    var possibleStarts = result.filter(function (time) {
+        return time >= start;
+    });
+    // var possibleStarts = Object
+    //     .keys(schedule)
+    //     .reduce(function (acc, val) {
+    //         return acc.concat(schedule[val].map(function (deltaTime) {
+    //             return deltaTime.from;
+    //         }));
+    //     }, [])
+    //     .filter(function (time) {
+    //         return time >= start;
+    //     })
+    //     .concat([start])
+    //     .sort(function (a, b) {
+    //         return a > b ? 1 : -1;
+    //     });
 
-    for (var i = 0; i < possibleStarts.length; i++) {
-        if (timesMatch(schedule, possibleStarts[i], duration)) {
-            return possibleStarts[i];
+    for (var i2 = 0; i2 < possibleStarts.length; i2++) {
+        if (timesMatch(schedule, possibleStarts[i2], duration)) {
+            return possibleStarts[i2];
         }
     }
 
