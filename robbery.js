@@ -104,7 +104,7 @@ function normalizeSchedule(schedule, workingHours) {
 function isInTimeRanges(timeRanges, time, duration) {
     return timeRanges.some(function (timeRange) {
         return time >= timeRange.from &&
-            new Date(time.getTime() + duration) <= timeRange.to;
+            new Date(time.getTime() + duration) < timeRange.to;
     });
 }
 
