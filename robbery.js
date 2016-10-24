@@ -62,7 +62,7 @@ function invertSchedule(schedule, timeZone) {
     });
     for (var j = 0; j < sortedSchedule.length; j++) {
         var time = j === 0 ? {
-            from: normalizeDate(1, 0, 0),
+            from: normalizeDate(-1, 0, 0),
             to: normalizeTime(sortedSchedule[j].from, timeZone)
         } : {
             from: normalizeTime(sortedSchedule[j - 1].to, timeZone),
