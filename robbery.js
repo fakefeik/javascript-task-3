@@ -57,29 +57,29 @@ function normalizeTime(timeString, timeZone) {
 
 function invertSchedule(schedule, timeZone) {
     var result = [];
+
     var startWeek = normalizeDate(-1, 0, 0);
     var endWeek = normalizeDate(7, 0, 0);
-    var sortedSchedule = schedule.sort(function (a, b) {
-        return a > b ? 1 : -1;
-    });
+
     if (schedule.length === 0) {
         return [{
             from: startWeek,
             to: endWeek
         }];
     }
-    for (var j = 0; j < sortedSchedule.length; j++) {
+
+    for (var j = 0; j < schedule.length; j++) {
         var time = j === 0 ? {
             from: startWeek,
-            to: normalizeTime(sortedSchedule[j].from, timeZone)
+            to: normalizeTime(schedule[j].from, timeZone)
         } : {
-            from: normalizeTime(sortedSchedule[j - 1].to, timeZone),
-            to: normalizeTime(sortedSchedule[j].from, timeZone)
+            from: normalizeTime(schedule[j - 1].to, timeZone),
+            to: normalizeTime(schedule[j].from, timeZone)
         };
         result.push(time);
     }
     result.push({
-        from: normalizeTime(sortedSchedule[sortedSchedule.length - 1].to, timeZone),
+        from: normalizeTime(schedule[schedule.length - 1].to, timeZone),
         to: endWeek
     });
 
@@ -122,45 +122,26 @@ function timesMatch(schedule, start, duration) {
     });
 }
 
-function innerInnerFor(i, j, result) {
-    for (var k = 0; k < 60; k++) {
-        result.push(normalizeDate(i + 1, j, k));
-    }
-}
-
-function innerFor(i, result) {
-    for (var j = 0; j < 24; j++) {
-        innerInnerFor(i, j, result);
-    }
-}
-
 function getFirstAppropriateMoment(schedule, duration, start) {
     start = new Date(start || 0);
-    var result = [];
-    for (var i = 0; i < 3; i++) {
-        innerFor(i, result);
-    }
-    var possibleStarts = result.filter(function (time) {
-        return time >= start;
-    });
-    // var possibleStarts = Object
-    //     .keys(schedule)
-    //     .reduce(function (acc, val) {
-    //         return acc.concat(schedule[val].map(function (deltaTime) {
-    //             return deltaTime.from;
-    //         }));
-    //     }, [])
-    //     .filter(function (time) {
-    //         return time >= start;
-    //     })
-    //     .concat([start])
-    //     .sort(function (a, b) {
-    //         return a > b ? 1 : -1;
-    //     });
+    var possibleStarts = Object
+        .keys(schedule)
+        .reduce(function (acc, val) {
+            return acc.concat(schedule[val].map(function (deltaTime) {
+                return deltaTime.from;
+            }));
+        }, [])
+        .filter(function (time) {
+            return time >= start;
+        })
+        .concat([start])
+        .sort(function (a, b) {
+            return a > b ? 1 : -1;
+        });
 
-    for (var i2 = 0; i2 < possibleStarts.length; i2++) {
-        if (timesMatch(schedule, possibleStarts[i2], duration)) {
-            return possibleStarts[i2];
+    for (var i = 0; i < possibleStarts.length; i++) {
+        if (timesMatch(schedule, possibleStarts[i], duration)) {
+            return possibleStarts[i];
         }
     }
 
@@ -176,10 +157,8 @@ function getFirstAppropriateMoment(schedule, duration, start) {
  * @returns {Object}
  */
 exports.getAppropriateMoment = function (schedule, duration, workingHours) {
-    console.info(schedule, duration, workingHours);
     var normalizedDuration = duration * 60 * 1000;
     var normalizedSchedule = normalizeSchedule(schedule, workingHours);
-    console.info(normalizedSchedule);
     var moment = getFirstAppropriateMoment(normalizedSchedule, normalizedDuration);
 
     return {
