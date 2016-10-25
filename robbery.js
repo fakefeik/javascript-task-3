@@ -58,6 +58,7 @@ function normalizeTime(timeString, timeZone) {
 function invertSchedule(schedule, timeZone) {
     var result = [];
 
+    // Неделя начинается немного зарание, чтобы избежать багов с timeZone
     var startWeek = normalizeDate(-1, 0, 0);
     var endWeek = normalizeDate(7, 0, 0);
 
