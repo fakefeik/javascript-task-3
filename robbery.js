@@ -24,9 +24,9 @@ function parseTime(timeString) {
     var timeGroups = TIME_REGEXP.exec(timeString);
 
     return {
-        hours: parseInt(timeGroups[1]),
-        minutes: parseInt(timeGroups[2]),
-        timeZone: parseInt(timeGroups[3])
+        hours: parseInt(timeGroups[1], 10),
+        minutes: parseInt(timeGroups[2], 10),
+        timeZone: parseInt(timeGroups[3], 10)
     };
 }
 
@@ -93,18 +93,17 @@ function normalizeSchedule(schedule, workingHours) {
 
     var bankSchedule = Array
         .apply(null, new Array(ROBBERY_DAYS))
-        .map(function (_, i) {
+        .map(function (_, dayIndex) {
             return {
-                from: normalizeDate(i + 1, from.hours, from.minutes),
-                to: normalizeDate(i + 1, to.hours, to.minutes)
+                from: normalizeDate(dayIndex + 1, from.hours, from.minutes),
+                to: normalizeDate(dayIndex + 1, to.hours, to.minutes)
             };
         });
 
     var normalizedSchedule = { bank: bankSchedule };
-    var keys = Object.keys(schedule);
-    for (var i = 0; i < keys.length; i++) {
-        normalizedSchedule[keys[i]] = invertSchedule(schedule[keys[i]], timeZone);
-    }
+    Object.keys(schedule).forEach(function (key) {
+        normalizedSchedule[key] = invertSchedule(schedule[key], timeZone);
+    });
 
     return normalizedSchedule;
 }
@@ -124,8 +123,7 @@ function timesMatch(schedule, start, duration) {
 
 function getFirstAppropriateMoment(schedule, duration, start) {
     start = new Date(start || 0);
-    var possibleStarts = Object
-        .keys(schedule)
+    var possibleStarts = Object.keys(schedule)
         .reduce(function (acc, val) {
             return acc.concat(schedule[val].map(function (deltaTime) {
                 return deltaTime.from;
