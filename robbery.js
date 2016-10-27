@@ -56,8 +56,6 @@ function normalizeTime(timeString, timeZone) {
 }
 
 function invertSchedule(schedule, timeZone) {
-    var result = [];
-
     // Неделя начинается немного зарание, чтобы избежать багов с timeZone
     var startWeek = normalizeDate(-1, 0, 0);
     var endWeek = normalizeDate(7, 0, 0);
@@ -69,16 +67,18 @@ function invertSchedule(schedule, timeZone) {
         }];
     }
 
-    for (var j = 0; j < schedule.length; j++) {
-        var time = j === 0 ? {
-            from: startWeek,
-            to: normalizeTime(schedule[j].from, timeZone)
-        } : {
-            from: normalizeTime(schedule[j - 1].to, timeZone),
-            to: normalizeTime(schedule[j].from, timeZone)
-        };
-        result.push(time);
+    var result = [{
+        from: startWeek,
+        to: normalizeTime(schedule[0].from, timeZone)
+    }];
+
+    for (var i = 1; i < schedule.length; i++) {
+        result.push({
+            from: normalizeTime(schedule[i - 1].to, timeZone),
+            to: normalizeTime(schedule[i].from, timeZone)
+        });
     }
+
     result.push({
         from: normalizeTime(schedule[schedule.length - 1].to, timeZone),
         to: endWeek
@@ -117,17 +117,17 @@ function isInTimeRanges(timeRanges, time, duration) {
 }
 
 function timesMatch(schedule, start, duration) {
-    return Object.keys(schedule).every(function (e) {
-        return isInTimeRanges(schedule[e], start, duration);
+    return Object.keys(schedule).every(function (key) {
+        return isInTimeRanges(schedule[key], start, duration);
     });
 }
 
 function getFirstAppropriateMoment(schedule, duration, start) {
     start = new Date(start || 0);
     var possibleStarts = Object.keys(schedule)
-        .reduce(function (acc, val) {
-            return acc.concat(schedule[val].map(function (deltaTime) {
-                return deltaTime.from;
+        .reduce(function (acc, key) {
+            return acc.concat(schedule[key].map(function (interval) {
+                return interval.from;
             }));
         }, [])
         .filter(function (time) {
@@ -135,7 +135,7 @@ function getFirstAppropriateMoment(schedule, duration, start) {
         })
         .concat([start])
         .sort(function (a, b) {
-            return a > b ? 1 : -1;
+            return a - b;
         });
 
     for (var i = 0; i < possibleStarts.length; i++) {
